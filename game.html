@@ -1,0 +1,219 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<title>无标题文档</title>
+</head>
+
+<body>
+<canvas id="canvas"></canvas>
+<script type="application/javascript">
+function point(x,y){
+	this.x=x||0;
+	this.y=y||0;
+	this.distant=function(p1){
+		if(p1&&p1 instanceof point){
+			var dx=Math.abs(this.x-p1.x);
+			var dy=Math.abs(this.y-p1.y);
+			var r=dx+dy;
+			return r;
+			}
+		}
+	this.equal=function(p1){
+		if(p1&&p1 instanceof point){
+			if(this.x==p1.x&&this.y==p1.y){
+				return true;
+				}
+			return false;
+			}
+		}
+	}
+function game(){
+	this.steps=[];
+	this.openlist=[];
+	this.closelist=[];
+	this.inisnake=[];
+	this.food=new point();
+	this.ini=function(){
+	for(var i=0;i<this.inisnake.length;i++){
+			this.closelist.push(this.inisnake[i]);
+			}
+	var canvas=document.getElementById("canvas");
+	var ctx=canvas.getContext("2d");
+	canvas.width=200;
+	canvas.height=200;
+	var x=Math.floor(Math.random()*198);
+	var y=Math.floor(Math.random()*198);
+	this.food=new window.point(x,y);
+	x=Math.floor(Math.random()*198);
+	y=Math.floor(Math.random()*198);
+	this.inisnake.push(new window.point(x,y));
+	ctx.clearRect(0,0,200,200);
+	ctx.fillStyle="red";
+	ctx.fillRect(this.food.x,this.food.y,2,2);
+	ctx.fillStyle="blue";
+	for(var i=0;i<this.inisnake.length;i++){
+		var point=this.inisnake[i];
+		ctx.fillRect(point.x,point.y,2,2);
+		}
+	}
+	this.setcloselist=function(){
+		for(var i=0;i<this.inisnake.length;i++){
+			this.closelist.push(this.inisnake[i]);
+			}
+		}
+	this.step=function(){
+		if(this.inisnake[this.inisnake.length-1].distant(this.food)>2){
+		var up,down,left,right;
+		var len=this.inisnake.length-1;
+		this.head=this.inisnake[len];
+		if(this.head.y+2<=198){
+			down=true;
+			}
+		else{
+			down=false;
+			}
+		if(this.head.y-2>=0){
+			up=true;
+			}
+		else{
+			up=false;
+			}
+		if(this.head.x+2<=198){
+			right=true;
+			}
+		else{
+			right=false;
+			}
+		if(this.head.x-2>=0){
+			left=true;
+			}
+		else{
+			left=false;
+			}
+		if(down){
+			var found=false;
+			var point=new window.point(this.head.x,this.head.y+2);
+			for(var i=0;i<this.inisnake.length;i++){
+				var pc=this.inisnake[i].equal(point);
+				if(pc){
+					found=true;
+					break;
+					}
+				}
+				if(!found){
+					this.openlist.push(point);
+					}
+			}
+		if(right){
+			var found=false;
+			var point=new window.point(this.head.x+2,this.head.y);
+			for(var i=0;i<this.inisnake.length;i++){
+				var pc=this.inisnake[i].equal(point);
+				if(pc){
+					found=true;
+					break;
+					}
+				}
+				if(!found){
+					this.openlist.push(point);
+					}
+			}
+		if(left){
+			var found=false;
+			var point=new window.point(this.head.x-2,this.head.y);
+			for(var i=0;i<this.inisnake.length;i++){
+				var pc=this.inisnake[i].equal(point);
+				if(pc){
+					found=true;
+					break;
+					}
+				}
+				if(!found){
+					this.openlist.push(point);
+					}
+			}
+		if(up){
+			var found=false;
+			var point=new window.point(this.head.x,this.head.y-2);
+			for(var i=0;i<this.inisnake.length;i++){
+				var pc=this.inisnake[i].equal(point);
+				if(pc){
+					found=true;
+					break;
+					}
+				}
+				if(!found){
+					this.openlist.push(point);
+					}
+			}
+		var distance=[];
+		for(var i=0;i<this.openlist.length;i++){
+			var d=this.openlist[i].distant(this.food);
+			distance.push(d);
+			}
+		if(distance.length>0){
+			var mindistance=distance[0];
+			for(var i=1;i<distance.length;i++){
+				if(distance[i]<mindistance)
+				mindistance=distance[i];
+				}
+			}
+			else
+			{
+				alert("game over");
+				clearInterval(timer);
+				return;
+				}
+			var k=0;
+			for(var i=0;i<distance.length;i++){
+				if(mindistance==distance[i]){
+					k=i;
+					break;
+					}
+				}
+		    var point=this.openlist[k];
+			this.openlist=[];
+			this.closelist.push(point);
+			this.closelist.shift();
+			return point;
+		}
+	}
+	this.move=function(p){
+		this.inisnake.shift();
+		this.inisnake.push(p);
+		}
+	this.setfood=function(){
+		var x=Math.floor(Math.random()*198);
+	    var y=Math.floor(Math.random()*198);
+	    this.food=new window.point(x,y);
+		}
+	this.draw=function(){
+		var point=this.step();
+		if(point)
+		{
+		this.move(point);
+		var canvas=document.getElementById("canvas");
+	    var ctx=canvas.getContext("2d");
+		ctx.clearRect(0,0,200,200);
+		ctx.fillStyle="red";
+		ctx.fillRect(this.food.x,this.food.y,2,2);
+		ctx.fillStyle="blue";
+		for(var i=0;i<this.inisnake.length;i++){
+			ctx.fillRect(this.inisnake[i].x,this.inisnake[i].y,2,2);
+			}
+		}
+		else{
+			//alert("eat it");
+			this.inisnake.push(this.food);
+			this.setfood();
+			}
+	}
+	this.ini();
+	this.setcloselist();
+}
+var game=new game();
+var timer=setInterval("game.draw()",30);
+</script>
+</body>
+</html>
